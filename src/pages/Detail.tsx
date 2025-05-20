@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
-import { Coin } from '../api';
+import { Coin } from '../core/models';
 import { useCoinStore } from '../store/coinStore';
 import MarketItem from '../components/MarketItem';
 

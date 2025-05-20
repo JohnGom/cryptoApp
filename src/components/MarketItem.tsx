@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking, Alert } from 'react-native';
-import { Market } from '../models/types';
+import { Market } from '../core/models';
 
 interface MarketItemProps {
   market: Market;
@@ -8,16 +8,17 @@ interface MarketItemProps {
 
 const MarketItem: React.FC<MarketItemProps> = ({ market }) => {
   const handleExchangePress = async () => {
-    if (market.exchange_url) {
-      // Ensure the URL has http:// or https:// prefix
-      const url = market.exchange_url.startsWith('http') 
-        ? market.exchange_url 
-        : `https://${market.exchange_url}`;
-      
+    if (market.hasExchangeUrl()) {
+      // Get URL with correct prefix
+      const exchangeUrl = market.exchange_url || '';
+      const url = exchangeUrl.startsWith('http')
+        ? exchangeUrl
+        : `https://${exchangeUrl}`;
+
       try {
         // Check if the URL can be opened
         const canOpen = await Linking.canOpenURL(url);
-        
+
         if (canOpen) {
           await Linking.openURL(url);
         } else {
@@ -35,18 +36,18 @@ const MarketItem: React.FC<MarketItemProps> = ({ market }) => {
   return (
     <View style={styles.container}>
       <View style={styles.leftPart}>
-        {market.exchange_url ? (
+        {market.hasExchangeUrl() ? (
           <TouchableOpacity onPress={handleExchangePress}>
             <Text style={[styles.exchangeName, styles.linkText]}>{market.name}</Text>
           </TouchableOpacity>
         ) : (
           <Text style={styles.exchangeName}>{market.name}</Text>
         )}
-        <Text style={styles.pair}>{market.base}/{market.quote}</Text>
+        <Text style={styles.pair}>{market.tradingPair}</Text>
       </View>
       <View style={styles.rightPart}>
-        <Text style={styles.price}>${market.price_usd.toFixed(2)}</Text>
-        <Text style={styles.volume}>Vol: ${market.volume_usd.toLocaleString()}</Text>
+        <Text style={styles.price}>{market.getFormattedPrice()}</Text>
+        <Text style={styles.volume}>Vol: {market.getFormattedVolume()}</Text>
       </View>
     </View>
   );
@@ -93,4 +94,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MarketItem; 
+export default MarketItem;
